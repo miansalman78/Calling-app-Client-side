@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "108974893258",
+    "firebase_url": "https://kalugogoa-default-rtdb.firebaseio.com",
+    "project_id": "kalugogoa",
+    "storage_bucket": "kalugogoa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:108974893258:android:246e13e913b1114f27ac33",
+        "android_client_info": {
+          "package_name": "com.kalugogo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "108974893258-35lbl8jiqlsv3vspvpf20ne1ht09q5k0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kalugogo",
+            "certificate_hash": "7ce5f8b62cd3b4ef4f80843ca4e06d203c3903f9"
+          }
+        },
+        {
+          "client_id": "108974893258-p69gsiapn6765vgnl3q1t949us68eojr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMGf6FY0y_xaalAaHPfji3BAg2y2jMad4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "108974893258-p69gsiapn6765vgnl3q1t949us68eojr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {  
+            "client_id": "108974893258-bpr268tsfn2dhfsub2rbhlefo72nvuuq.apps.googleusercontent.com",  
+            "client_type": 2,  
+            "ios_info": {  
+              "bundle_id": "com.kalugogo"
+            }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
