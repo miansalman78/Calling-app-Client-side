@@ -70,5 +70,15 @@
 		<string>Roboto-Medium.ttf</string>
 		<string>Roboto-Regular.ttf</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>voip</string>
+		<string>fetch</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access for video calls</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs microphone access for voice and video calls</string>
 </dict>
 </plist>

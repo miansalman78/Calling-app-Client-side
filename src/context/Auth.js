@@ -34,8 +34,12 @@ const onUserLogin = async (userID, userName, props) => {
             outgoingCallFileName: 'zego_outgoing.mp3',
         },
 
+        // CRITICAL: Enable offline push notifications for background/killed state
         notifyWhenAppRunningInBackgroundOrQuit: true,
+
+        // iOS configuration - set to false for production
         isIOSSandboxEnvironment: true,
+
         androidNotificationConfig: {
             channelID: 'ZegoUIKit',
             channelName: 'ZegoUIKit',
@@ -61,7 +65,7 @@ const onUserLogin = async (userID, userName, props) => {
             };
 
         },
-    },).then(() => {
+    }).then(() => {
         ZegoUIKitPrebuiltCallService.requestSystemAlertWindow({
             message: 'We need your consent for the following permissions in order to use the offline call function properly',
             allow: 'Allow',
@@ -130,7 +134,7 @@ export const AuthProvider = ({ children }) => {
             let currentRequest = await _getActiveRequest()
             dispatchRedux(updateRequestStatus(currentRequest))
 
-            //await onUserLogin(currentUserDetails.id.toString(), currentUserDetails.fullname, );
+            await onUserLogin(currentUserDetails.id.toString(), currentUserDetails.fullname, {});
 
         } catch (err) {
             if (err?.response?.data?.detail) {
@@ -170,7 +174,7 @@ export const AuthProvider = ({ children }) => {
             let currentRequest = await _getActiveRequest()
             dispatchRedux(updateRequestStatus(currentRequest))
 
-            //await onUserLogin(currentUserDetails.id.toString(), currentUserDetails.fullname, );
+            await onUserLogin(currentUserDetails.id.toString(), currentUserDetails.fullname, {});
 
         } catch (err) {
             if (err?.response?.data?.detail) {
