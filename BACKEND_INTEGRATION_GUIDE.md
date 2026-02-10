@@ -4,93 +4,41 @@
 
 This guide is intended for the backend developer. To support background and killed-state call notifications, the backend must integrate with Zego's Offline Push Notification Service (ZPNs).
 
-## Required Backend Changes
+## Required Backend/Admin Changes
 
-### 1. Register Device Tokens with Zego
+> **Correction:** The Zego ZPNs SDK (which is already integrated into the mobile app) automatically handles the device token registration. **You do NOT need to implement a code-based `PushRegister` API on your backend.** 
 
-When a user logs in and the app retrieves an FCM (Android) or APNs (iOS) token, this token must be registered with Zego's servers via their REST API.
+Your primary responsibility is the **Zego Console Configuration**.
 
-#### API Endpoint to Create on Your Backend
+### 1. Zego Console Configuration (Mandatory)
 
-```
-POST /api/register-push-token
-```
+For the client-side ZPNs to work, you must upload the push certificates to the [Zego Admin Console](https://console.zego.im).
 
-**Request Body:**
-```json
-{
-  "user_id": "user123",
-  "fcm_token": "fcm_device_token_here",
-  "platform": "android" // or "ios"
-}
-```
+#### Android (FCM)
+1.  Navigate to **Services → Offline Push**.
+2.  Add a configuration for **Android (FCM)**.
+3.  Provide the **FCM Server Key** and **Sender ID** (retrieved from your Firebase Console Project Settings).
 
-#### Backend Implementation (Python - Django/Flask Example)
+#### iOS (APNs/VoIP)
+1.  Generate a **VoIP Push Certificate (.p12)** from the Apple Developer Portal.
+2.  Upload the certificate to the Zego Console under the iOS configuration.
+3.  **Important:** Ensure you select **Product Type: VoIP Services**.
+4.  Set the environment to **Development** (for Sandbox testing) or **Production** (for TestFlight/Store).
 
-If you are using Python, you can use the `requests` library to communicate with Zego's API.
+---
 
-```python
-import hashlib
-import hmac
-import time
-import uuid
-import requests
+### 2. Verify Zego Console Setup
 
-ZEGO_APP_ID = "YOUR_ZEGO_APP_ID"
-ZEGO_SERVER_SECRET = "YOUR_ZEGO_SERVER_SECRET"
+Once you have uploaded the certificates, the Mobile App (Client) will automatically:
+1.  Get the FCM/APNs token from the OS.
+2.  Register it with Zego's servers automatically upon Login.
 
-def generate_zego_signature(params):
-    # Sort keys alphabetically
-    sorted_keys = sorted(params.keys())
-    # Create query string: key1=val1&key2=val2...
-    query_string = "&".join([f"{k}={params[k]}" for k in sorted_keys])
-    
-    # HMAC-SHA256 signature
-    signature = hmac.new(
-        ZEGO_SERVER_SECRET.encode('utf-8'),
-        query_string.encode('utf-8'),
-        hashlib.sha256
-    ).hexdigest()
-    return signature
-
-def register_zego_push_token(user_id, fcm_token, platform):
-    params = {
-        "AppId": ZEGO_APP_ID,
-        "UserId": user_id,
-        "PushID": fcm_token,
-        "PushProvider": 1 if platform == "android" else 2, # 1=FCM, 2=APNs
-        "Timestamp": int(time.time()),
-        "Nonce": str(uuid.uuid4())[:8],
-    }
-    
-    signature = generate_zego_signature(params)
-    
-    headers = {
-        "Content-Type": "application/json",
-        "AppId": ZEGO_APP_ID,
-        "Signature": signature
-    }
-    
-    response = requests.post(
-        "https://rtc-api.zego.im/?Action=PushRegister",
-        json=params,
-        headers=headers
-    )
-    
-    return response.json()
-
-# Example usage in your API view:
-# result = register_zego_push_token("user123", "fcm_token_from_client", "android")
-# print(result)
-```
-
-### 2. Configure Offline Push in Call Invitations
+You do not need to write Python code for this. Just ensure the **Console Certificates** matching the App's **Bundle ID** are correct.
 
 When the caller initiates a call, the Zego SDK automatically handles the offline push if the callee is offline, provided the `notificationConfig` is included in the invitation.
 
 **Note:** This is already configured in the client-side app code. No extra backend logic is needed for "sending" the push, as Zego's ZPNs handles it automatically once the tokens are registered.
 
-### 3. Zego Console Configuration (Mandatory)
 
 The backend developer or admin must configure the following in the [Zego Admin Console](https://console.zego.im):
 
