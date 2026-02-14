@@ -6,11 +6,17 @@ This guide is intended for the backend developer. To support background and kill
 
 ## Required Backend/Admin Changes
 
-> **Correction:** The Zego ZPNs SDK (which is already integrated into the mobile app) automatically handles the device token registration. **You do NOT need to implement a code-based `PushRegister` API on your backend.** 
+### 1. Fresh Zego Project Setup (If access is lost)
 
-Your primary responsibility is the **Zego Console Configuration**.
+If you are seeing "Verification Failed" on index.js login, it is recommended to create a new Zego account to ensure you have full administrative control.
 
-### 1. Zego Console Configuration (Mandatory)
+1.  Sign up at [https://console.zego.im](https://console.zego.im).
+2.  Create a new project (Voice & Video Call).
+3.  Update the mobile app credentials in:
+    *   `src/utils/Constants.ts`
+    *   `KeyCenter.js`
+
+### 2. Zego Console Configuration (Mandatory)
 
 For the client-side ZPNs to work, you must upload the push certificates to the [Zego Admin Console](https://console.zego.im).
 

@@ -9,10 +9,17 @@ The mobile application has been fully updated to support background and killed-s
 3.  **App.js:** Integrated the logic to retrieve the FCM device token and prepared the registration flow for the backend.
 4.  **Backend Integration Guide:** Created a technical document for the backend team to complete the setup.
 
-## Required Next Steps
+### Step 1: Fresh Zego Project Setup (Recommended)
+If you cannot access the old Zego account, please create a new one to regain full control.
 
-### Step 1: Zego Console Configuration (Mandatory)
-**This is the ONLY step required from the backend/admin team.**
+1.  **Create Account:** Sign up at [https://console.zego.im](https://console.zego.im).
+2.  **Create Project:** Select 'Voice & Video Call' and use the 'UIKits' option.
+3.  **Update Credentials:** Open the following files in the mobile app and replace the `appID` and `appSign` with your new project's credentials:
+    *   `src/utils/Constants.ts`
+    *   `KeyCenter.js`
+
+### 2. Zego Console Configuration (Mandatory)
+**This is the ONLY step required to enable background ringing.**
 
 1.  Log in to the [Zego Admin Console](https://console.zego.im).
 2.  Go to **Services → Offline Push**.
@@ -21,7 +28,7 @@ The mobile application has been fully updated to support background and killed-s
 
 **Correction:** The Mobile App (Client) SDK **automatically registers** the device token once these certificates are configured. You do **NOT** need to implement any "PushRegister" API on your backend.
 
-### Step 2: Testing
+### 3. Testing
 
 #### Test 1: Foreground State (App is Open)
 - **User A:** Keep the app open on the Home screen.
