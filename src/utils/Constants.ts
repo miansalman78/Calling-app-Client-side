@@ -1,4 +1,4 @@
-wimport { Dimensions, Platform, PixelRatio } from 'react-native';
+import { Dimensions, Platform, PixelRatio } from 'react-native';
 
 // also in androidmanifest.xml
 // appdelegate.m
