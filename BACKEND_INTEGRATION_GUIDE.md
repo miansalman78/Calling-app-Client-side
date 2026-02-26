@@ -8,8 +8,6 @@ This guide is intended for the backend developer. To support background and kill
 
 ### 1. Fresh Zego Project Setup (If access is lost)
 
-If you are seeing "Verification Failed" on index.js login, it is recommended to create a new Zego account to ensure you have full administrative control.
-
 1.  Sign up at [https://console.zego.im](https://console.zego.im).
 2.  Create a new project (Voice & Video Call).
 3.  Update the mobile app credentials in:
@@ -33,69 +31,79 @@ For the client-side ZPNs to work, you must upload the push certificates to the [
 
 ---
 
-### 2. Verify Zego Console Setup
+## Python / Django Implementation Guide
 
-Once you have uploaded the certificates, the Mobile App (Client) will automatically:
-1.  Get the FCM/APNs token from the OS.
-2.  Register it with Zego's servers automatically upon Login.
+Since a Python developer is available, here is the exact logic to be added to the Django backend.
 
-You do not need to write Python code for this. Just ensure the **Console Certificates** matching the App's **Bundle ID** are correct.
-
-When the caller initiates a call, the Zego SDK automatically handles the offline push if the callee is offline, provided the `notificationConfig` is included in the invitation.
-
-**Note:** This is already configured in the client-side app code. No extra backend logic is needed for "sending" the push, as Zego's ZPNs handles it automatically once the tokens are registered.
-
-
-The backend developer or admin must configure the following in the [Zego Admin Console](https://console.zego.im):
-
-#### Android (FCM)
-1. Navigate to **Services → Offline Push**.
-2. Add a configuration for **Android (FCM)**.
-3. Provide the **FCM Server Key** and **Sender ID** (retrieved from the Firebase Console).
-
-#### iOS (APNs)
-1. Generate a **VoIP Push Certificate (.p12)** from the Apple Developer Portal.
-2. Upload the certificate to the Zego Console under the iOS configuration.
-3. Set the environment to **Development** for testing and **Production** for the final release.
-
-### 4. Verification
-
-#### Test Token Registration
-You can verify the integration by sending a test request to your new endpoint:
+### 1. Requirements
+Ensure you have `requests` installed:
 ```bash
-curl -X POST http://your-backend-api.com/api/register-push-token \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fcm_token": "actual_device_token",
-    "platform": "android",
-    "user_id": "test_user_001"
-  }'
+pip install requests
 ```
 
-**Expected Success Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "Code": 0,
-    "Message": "success"
-  }
-}
+### 2. Device Token Registration Logic (`views.py`)
+
+This function should be called inside your `update_device_token` view.
+
+```python
+import requests
+import hashlib
+import time
+import json
+
+def register_with_zego(user_id, fcm_token, platform):
+    """
+    Registers the device token with Zego RTC Server.
+    platform: 'android' or 'ios'
+    """
+    APP_ID = 508512713
+    SERVER_SECRET = "YOUR_ZEGO_SERVER_SECRET" # Get from Zego Console
+    
+    # 1. Determine Provider
+    # 1 for FCM (Android), 2 for APNs (iOS)
+    provider = 1 if platform.lower() == 'android' else 2
+    
+    # 2. Prepare Parameters
+    timestamp = int(time.time())
+    # Note: Check Zego Admin Console for the exact Signature format required for your project type.
+    # Standard format: md5(AppId + ServerSecret + Timestamp)
+    sig_string = f"{APP_ID}{SERVER_SECRET}{timestamp}"
+    signature = hashlib.md5(sig_string.encode('utf-8')).hexdigest()
+    
+    url = f"https://rtc-api.zego.im/?Action=PushRegister&AppId={APP_ID}&Signature={signature}&Timestamp={timestamp}"
+    
+    payload = {
+        "AppId": APP_ID,
+        "UserId": str(user_id),
+        "PushID": fcm_token,
+        "PushProvider": provider
+    }
+    
+    try:
+        response = requests.post(url, json=payload)
+        result = response.json()
+        print(f"Zego Registration Result: {result}")
+        return result
+    except Exception as e:
+        print(f"Zego Registration Error: {e}")
+        return None
 ```
 
-## Critical Success Factors
+### 3. Zego Console Configuration (CRITICAL)
 
-1.  **High Priority Pushes:** Ensure the push notifications are sent with high priority to wake the device from "Doze" mode (Android) or "Power Nap" (iOS).
-2.  **Valid Certificates:** APNs certificates usually expire yearly. Ensure they are kept up to date.
-3.  **Token Synchronization:** Tokens should be re-registered whenever they change (on app refresh or re-login).
+The Python developer must verify these settings in the [Zego Console](https://console.zego.im):
 
-## Integration Checklist (Troubleshooting)
+1.  **Resource ID:** Ensure you have a resource ID named `ZegoUIKit` or `zego_call` configured.
+2.  **FCM Server Key:** The backend CANNOT trigger pushes unless the Firebase Server Key is uploaded to Zego Project Settings -> Offline Push.
 
-If notifications are still not showing up, the developer must verify these 3 points:
+---
 
-1.  **Is the `PushRegister` API returning `Code: 0`?** 
-    If not, the token is not linked to the user on Zego's side.
-2.  **Is the Zego Console configured with the correct FCM Server Key?**
-    FCM (Firebase Cloud Messaging) doesn't work through Zego unless the Key is provided in the Zego Admin Panel.
-3.  **Is the Caller sending the `notificationConfig`?**
-    The invitation must have the `resourceID` that matches the one configured in the Zego Console.
+## Next Steps for the Python Developer
+
+1.  **Update Endpoint:** Integrate the `register_with_zego` function into the Django API.
+2.  **Verify Signature:** Double-check the Zego Server API documentation for any updates to the `Signature` algorithm.
+3.  **Test:** Use the `curl` command to verify the token is being accepted by Zego.
+
+## Conclusion
+
+With a Python developer on board, we can bridge this gap immediately. The client-side (React Native) is already sending the tokens; we just need the backend to forward them to Zego. 2 weeks is more than enough time to wrap this up.
