@@ -117,24 +117,16 @@ const App = () => {
       const token = await messaging().getToken();
       console.log('Notification Token: ', token);
 
-      // TODO: Register token with backend
-      // Backend must then register this token with Zego server
-      // Uncomment when backend endpoint is ready:
-      /*
+      // Register token with backend
+      // Backend will then register this token with Zego server
       try {
-        await fetch('YOUR_BACKEND_URL/api/register-push-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fcm_token: token,
-            platform: Platform.OS,
-          }),
+        await _updateDeviceToken({
+          body: { "device_token": token }
         });
-        console.log('Token registered with backend');
+        console.log('Token registered with backend successfully');
       } catch (error) {
-        console.error('Failed to register token:', error);
+        console.error('Failed to register token with backend:', error);
       }
-      */
     }
   };
 
